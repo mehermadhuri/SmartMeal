@@ -1,18 +1,32 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { menuAPI } from '../api/api';
 import FoodCard from '../components/FoodCard';
 import { Search } from 'lucide-react';
 
 export default function MenuPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState('ALL');
+  const [activeTab, setActiveTab] = useState(() => {
+    const cat = searchParams.get('category');
+    return (cat === 'TIFFIN' || cat === 'LUNCH') ? cat : 'ALL';
+  });
   const [search, setSearch] = useState('');
 
   useEffect(() => {
     loadMenu();
   }, [activeTab]);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (tab === 'ALL') {
+      setSearchParams({});
+    } else {
+      setSearchParams({ category: tab });
+    }
+  };
 
   const loadMenu = async () => {
     setLoading(true);
@@ -47,7 +61,7 @@ export default function MenuPage() {
 
         <div className="tabs">
           {['ALL', 'TIFFIN', 'LUNCH'].map(tab => (
-            <button key={tab} className={`tab ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>
+            <button key={tab} className={`tab ${activeTab === tab ? 'active' : ''}`} onClick={() => handleTabChange(tab)}>
               {tab === 'ALL' ? '🍴 All Items' : tab === 'TIFFIN' ? '🥐 Tiffin' : '🍛 Lunch'}
             </button>
           ))}

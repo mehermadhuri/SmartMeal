@@ -32,7 +32,7 @@ export default function FoodCard({ item }) {
           loading="lazy"
         />
         {!available && <div className="sold-out-overlay">Sold Out</div>}
-        <span className="food-category badge badge-primary">{item.category}</span>
+        <span className="food-category badge badge-primary">{item.mealType}</span>
       </div>
       <div className="card-body">
         <h3 className="food-name">{item.name}</h3>

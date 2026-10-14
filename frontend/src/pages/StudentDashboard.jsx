@@ -20,14 +20,16 @@ export default function StudentDashboard() {
           <div className="card-body">
             <h2><Clock size={22} /> Canteen Ordering Hours</h2>
             <div className="hours-grid">
-              <div className="hours-item">
+              <Link to="/menu?category=TIFFIN" className="hours-item" style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}>
                 <h3>🥐 Tiffin Bookings</h3>
                 <p className="hours-time">8:00 AM – 10:00 AM</p>
-              </div>
-              <div className="hours-item">
+                <p style={{ fontSize: '0.75rem', color: 'var(--primary)', marginTop: '0.25rem' }}>Tap to browse →</p>
+              </Link>
+              <Link to="/menu?category=LUNCH" className="hours-item" style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}>
                 <h3>🍛 Lunch Bookings</h3>
                 <p className="hours-time">11:30 AM – 2:00 PM</p>
-              </div>
+                <p style={{ fontSize: '0.75rem', color: 'var(--primary)', marginTop: '0.25rem' }}>Tap to browse →</p>
+              </Link>
               <div className="hours-item">
                 <h3>🕐 Online Ordering Closes</h3>
                 <p className="hours-time">3:00 PM</p>

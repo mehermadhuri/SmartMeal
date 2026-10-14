@@ -18,7 +18,7 @@ export function CartProvider({ children }) {
         name: menuItem.name,
         price: menuItem.price,
         imageUrl: menuItem.imageUrl,
-        category: menuItem.category,
+        category: menuItem.mealType,   // backend returns mealType not category
         quantity: qty,
       }];
     });

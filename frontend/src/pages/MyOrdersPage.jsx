@@ -3,12 +3,25 @@ import { Link } from 'react-router-dom';
 import { orderAPI } from '../api/api';
 import { Receipt, XCircle, Eye } from 'lucide-react';
 
+// Matches actual OrderStatus enum values from backend
 const STATUS_COLORS = {
-  PENDING: 'badge-warning',
-  CONFIRMED: 'badge-primary',
-  READY: 'badge-success',
-  COMPLETED: 'badge-success',
-  CANCELLED: 'badge-danger',
+  PENDING_PAYMENT:               'badge-warning',
+  PAYMENT_VERIFICATION_PENDING:  'badge-warning',
+  CONFIRMED:                     'badge-primary',
+  PREPARING:                     'badge-primary',
+  READY_FOR_PICKUP:              'badge-success',
+  COLLECTED:                     'badge-success',
+  CANCELLED:                     'badge-danger',
+};
+
+const STATUS_LABELS = {
+  PENDING_PAYMENT:               '⏳ Pending Payment',
+  PAYMENT_VERIFICATION_PENDING:  '🔍 Verifying Payment',
+  CONFIRMED:                     '✅ Confirmed',
+  PREPARING:                     '👨‍🍳 Preparing',
+  READY_FOR_PICKUP:              '🛎️ Ready for Pickup',
+  COLLECTED:                     '✔️ Collected',
+  CANCELLED:                     '❌ Cancelled',
 };
 
 export default function MyOrdersPage() {
@@ -44,7 +57,9 @@ export default function MyOrdersPage() {
     }
   };
 
-  const canCancel = (order) => ['PENDING', 'CONFIRMED'].includes(order.status);
+  // Use orderStatus (backend field name) and correct enum values
+  const canCancel = (order) =>
+    ['PENDING_PAYMENT', 'CONFIRMED', 'PREPARING'].includes(order.orderStatus);
 
   if (loading) return <div className="spinner" />;
 
@@ -72,23 +87,40 @@ export default function MyOrdersPage() {
                 <div className="card-body">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem' }}>
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                        <h3 style={{ fontWeight: 700 }}>Order #{order.id}</h3>
-                        <span className={`badge ${STATUS_COLORS[order.status] || 'badge-primary'}`}>{order.status}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
+                        {/* Show orderNumber if available, else fall back to id */}
+                        <h3 style={{ fontWeight: 700 }}>
+                          {order.orderNumber ? `#${order.orderNumber}` : `Order #${order.id}`}
+                        </h3>
+                        <span className={`badge ${STATUS_COLORS[order.orderStatus] || 'badge-primary'}`}>
+                          {STATUS_LABELS[order.orderStatus] || order.orderStatus}
+                        </span>
                         <span className={`badge ${order.paymentStatus === 'COMPLETED' ? 'badge-success' : 'badge-warning'}`}>
-                          {order.paymentStatus || 'PENDING'}
+                          💳 {order.paymentStatus || 'PENDING'}
                         </span>
                       </div>
-                      <p style={{ fontSize: '0.85rem', color: 'var(--gray-500)' }}>
+
+                      <p style={{ fontSize: '0.85rem', color: 'var(--gray-500)', marginBottom: '0.25rem' }}>
                         {new Date(order.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
                       </p>
+
+                      {/* Show meal category and pickup slot */}
+                      {(order.mealCategory || order.pickupSlot) && (
+                        <p style={{ fontSize: '0.85rem', color: 'var(--gray-600)', marginBottom: '0.25rem' }}>
+                          {order.mealCategory && <span>🍽️ {order.mealCategory}</span>}
+                          {order.pickupSlot && <span style={{ marginLeft: '0.75rem' }}>🕐 {order.pickupSlot}</span>}
+                        </p>
+                      )}
+
                       <div style={{ marginTop: '0.5rem' }}>
                         {order.items?.slice(0, 3).map(item => (
                           <span key={item.id} style={{ fontSize: '0.85rem', color: 'var(--gray-700)', marginRight: '0.75rem' }}>
                             {item.menuName} × {item.quantity}
                           </span>
                         ))}
-                        {order.items?.length > 3 && <span style={{ fontSize: '0.82rem', color: 'var(--gray-500)' }}>+{order.items.length - 3} more</span>}
+                        {order.items?.length > 3 && (
+                          <span style={{ fontSize: '0.82rem', color: 'var(--gray-500)' }}>+{order.items.length - 3} more</span>
+                        )}
                       </div>
                     </div>
 
@@ -98,7 +130,11 @@ export default function MyOrdersPage() {
                         <Eye size={16} /> Receipt
                       </Link>
                       {canCancel(order) && (
-                        <button className="btn btn-danger btn-sm" onClick={() => handleCancel(order.id)} disabled={cancelling === order.id}>
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => handleCancel(order.id)}
+                          disabled={cancelling === order.id}
+                        >
                           <XCircle size={16} /> {cancelling === order.id ? 'Cancelling...' : 'Cancel'}
                         </button>
                       )}
