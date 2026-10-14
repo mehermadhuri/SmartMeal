@@ -12,7 +12,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/slots")
-@CrossOrigin(origins = {"http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"})
+@CrossOrigin(origins = "*")
 public class MealSlotController {
 
     private final MealSlotService mealSlotService;
