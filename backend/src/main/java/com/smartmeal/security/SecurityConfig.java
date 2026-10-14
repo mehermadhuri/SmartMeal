@@ -48,6 +48,7 @@ public class SecurityConfig {
                         // Public endpoints
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/health/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/menus/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/slots/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/predictions/**").permitAll()

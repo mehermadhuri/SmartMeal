@@ -1,4 +1,5 @@
-const API_BASE = '/api';
+const RAW_BASE = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE = RAW_BASE ? (RAW_BASE.endsWith('/api') ? RAW_BASE : `${RAW_BASE.replace(/\/$/, '')}/api`) : '/api';
 
 async function request(endpoint, options = {}) {
   const token = localStorage.getItem('smartmeal_token');
