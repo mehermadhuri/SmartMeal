@@ -306,9 +306,9 @@ Deploy the React single page application to **Vercel** or **Netlify**:
 
 ## 👩‍💻 Author & Academic Disclaimer
 
-**KOTA MEHER MADHURI**  
+**K MEHER MADHURI**  
 Department of Computer Science & Engineering  
 **Anurag University**, Hyderabad, Telangana, India  
 GitHub: [https://github.com/mehermadhuri](https://github.com/mehermadhuri)
 
-> *SmartMeal is developed as a B.Tech major project for academic evaluation. It identifies Anurag University as its intended campus context and is not an officially commissioned enterprise system.*
+> *SmartMeal is developed .*
