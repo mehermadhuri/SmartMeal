@@ -46,6 +46,25 @@ public class OrderService {
             throw new IllegalStateException("Booking window for " + category + " is currently closed. Ordering hours: Tiffin 8:00 AM - 10:00 AM, Lunch 11:30 AM - 2:00 PM.");
         }
 
+        // Duplicate order protection: reuse existing pending order from the last 10 minutes if identical
+        List<Order> recentOrders = orderRepository.findByUserOrderByCreatedAtDesc(user);
+        for (Order recent : recentOrders) {
+            if (recent.getOrderStatus() == OrderStatus.PENDING_PAYMENT
+                    && recent.getPaymentStatus() == PaymentStatus.PENDING
+                    && recent.getCreatedAt() != null
+                    && recent.getCreatedAt().isAfter(LocalDateTime.now().minusMinutes(10))
+                    && recent.getMealCategory() == category) {
+
+                if (isSameOrderItems(recent.getItems(), request.getItems())) {
+                    if (request.getPickupSlot() != null && !request.getPickupSlot().equals(recent.getPickupSlot())) {
+                        recent.setPickupSlot(request.getPickupSlot());
+                        return orderRepository.save(recent);
+                    }
+                    return recent;
+                }
+            }
+        }
+
         Order order = new Order();
         order.setUser(user);
         order.setMealCategory(category);
@@ -160,6 +179,25 @@ public class OrderService {
         }
 
         return orderRepository.save(order);
+    }
+
+    private boolean isSameOrderItems(List<OrderItem> existingItems, List<OrderItemRequest> requestedItems) {
+        if (existingItems == null || requestedItems == null) return false;
+        List<OrderItemRequest> validReq = requestedItems.stream()
+                .filter(i -> i.getMenuItemId() != null && i.getQuantity() != null && i.getQuantity() > 0)
+                .toList();
+        if (existingItems.size() != validReq.size()) return false;
+
+        for (OrderItemRequest req : validReq) {
+            boolean matched = existingItems.stream().anyMatch(e ->
+                    e.getMenuItem() != null
+                            && e.getMenuItem().getId().equals(req.getMenuItemId())
+                            && e.getQuantity().equals(req.getQuantity()));
+            if (!matched) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private String generateOrderNumber() {

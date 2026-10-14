@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { orderAPI } from '../api/api';
-import { Receipt, XCircle, Eye } from 'lucide-react';
+import { Receipt, XCircle, Eye, CreditCard } from 'lucide-react';
 
 // Matches actual OrderStatus enum values from backend
 const STATUS_COLORS = {
@@ -57,7 +57,7 @@ export default function MyOrdersPage() {
     }
   };
 
-  // Use orderStatus (backend field name) and correct enum values
+  // Allow cancel for orders in preparation or pending payment
   const canCancel = (order) =>
     ['PENDING_PAYMENT', 'CONFIRMED', 'PREPARING'].includes(order.orderStatus);
 
@@ -68,7 +68,7 @@ export default function MyOrdersPage() {
       <div className="container">
         <div className="page-header">
           <h1><Receipt size={28} /> My Orders</h1>
-          <p>View and manage your meal bookings</p>
+          <p>View and manage your meal bookings & official receipts</p>
         </div>
 
         {error && <div className="alert alert-error">{error}</div>}
@@ -82,67 +82,81 @@ export default function MyOrdersPage() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {orders.map(order => (
-              <div key={order.id} className="card">
-                <div className="card-body">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem' }}>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
-                        {/* Show orderNumber if available, else fall back to id */}
-                        <h3 style={{ fontWeight: 700 }}>
-                          {order.orderNumber ? `#${order.orderNumber}` : `Order #${order.id}`}
-                        </h3>
-                        <span className={`badge ${STATUS_COLORS[order.orderStatus] || 'badge-primary'}`}>
-                          {STATUS_LABELS[order.orderStatus] || order.orderStatus}
-                        </span>
-                        <span className={`badge ${order.paymentStatus === 'COMPLETED' ? 'badge-success' : 'badge-warning'}`}>
-                          💳 {order.paymentStatus || 'PENDING'}
-                        </span>
+            {orders.map(order => {
+              const isPaid = order.paymentStatus === 'PAID';
+              const isPendingPayment = order.orderStatus === 'PENDING_PAYMENT';
+
+              return (
+                <div key={order.id} className="card">
+                  <div className="card-body">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem' }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
+                          <h3 style={{ fontWeight: 700 }}>
+                            {order.orderNumber ? `#${order.orderNumber}` : `Order #${order.id}`}
+                          </h3>
+                          <span className={`badge ${STATUS_COLORS[order.orderStatus] || 'badge-primary'}`}>
+                            {STATUS_LABELS[order.orderStatus] || order.orderStatus}
+                          </span>
+                          <span className={`badge ${isPaid ? 'badge-success' : 'badge-warning'}`}>
+                            💳 {isPaid ? 'PAID' : (order.paymentReference?.includes('COUNTER') ? 'PAY AT COUNTER' : 'PENDING')}
+                          </span>
+                        </div>
+
+                        <p style={{ fontSize: '0.85rem', color: 'var(--gray-500)', marginBottom: '0.25rem' }}>
+                          {new Date(order.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}
+                        </p>
+
+                        {(order.mealCategory || order.pickupSlot) && (
+                          <p style={{ fontSize: '0.85rem', color: 'var(--gray-600)', marginBottom: '0.25rem' }}>
+                            {order.mealCategory && <span>🍽️ <strong>{order.mealCategory}</strong></span>}
+                            {order.pickupSlot && <span style={{ marginLeft: '0.75rem' }}>🕐 Slot: <strong>{order.pickupSlot}</strong></span>}
+                          </p>
+                        )}
+
+                        <div style={{ marginTop: '0.5rem' }}>
+                          {order.items?.slice(0, 3).map(item => (
+                            <span key={item.id} style={{ fontSize: '0.85rem', color: 'var(--gray-700)', marginRight: '0.75rem' }}>
+                              {item.itemNameSnapshot || item.menuName} × {item.quantity}
+                            </span>
+                          ))}
+                          {order.items?.length > 3 && (
+                            <span style={{ fontSize: '0.82rem', color: 'var(--gray-500)' }}>+{order.items.length - 3} more</span>
+                          )}
+                        </div>
                       </div>
 
-                      <p style={{ fontSize: '0.85rem', color: 'var(--gray-500)', marginBottom: '0.25rem' }}>
-                        {new Date(order.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
-                      </p>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <span style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--primary)', marginRight: '0.5rem' }}>
+                          ₹{order.totalAmount}
+                        </span>
 
-                      {/* Show meal category and pickup slot */}
-                      {(order.mealCategory || order.pickupSlot) && (
-                        <p style={{ fontSize: '0.85rem', color: 'var(--gray-600)', marginBottom: '0.25rem' }}>
-                          {order.mealCategory && <span>🍽️ {order.mealCategory}</span>}
-                          {order.pickupSlot && <span style={{ marginLeft: '0.75rem' }}>🕐 {order.pickupSlot}</span>}
-                        </p>
-                      )}
+                        {isPendingPayment && (
+                          <Link to={`/payment/${order.id}`} className="btn btn-primary btn-sm">
+                            <CreditCard size={15} /> Pay Now
+                          </Link>
+                        )}
 
-                      <div style={{ marginTop: '0.5rem' }}>
-                        {order.items?.slice(0, 3).map(item => (
-                          <span key={item.id} style={{ fontSize: '0.85rem', color: 'var(--gray-700)', marginRight: '0.75rem' }}>
-                            {item.menuName} × {item.quantity}
-                          </span>
-                        ))}
-                        {order.items?.length > 3 && (
-                          <span style={{ fontSize: '0.82rem', color: 'var(--gray-500)' }}>+{order.items.length - 3} more</span>
+                        <Link to={`/order-confirmation/${order.id}`} className="btn btn-outline btn-sm">
+                          <Eye size={15} /> View Receipt
+                        </Link>
+
+                        {canCancel(order) && (
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() => handleCancel(order.id)}
+                            disabled={cancelling === order.id}
+                            title="Cancel this order"
+                          >
+                            <XCircle size={15} /> {cancelling === order.id ? 'Cancelling...' : 'Cancel'}
+                          </button>
                         )}
                       </div>
                     </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                      <span style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--primary)' }}>₹{order.totalAmount}</span>
-                      <Link to={`/order-confirmation/${order.id}`} className="btn btn-outline btn-sm">
-                        <Eye size={16} /> Receipt
-                      </Link>
-                      {canCancel(order) && (
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleCancel(order.id)}
-                          disabled={cancelling === order.id}
-                        >
-                          <XCircle size={16} /> {cancelling === order.id ? 'Cancelling...' : 'Cancel'}
-                        </button>
-                      )}
-                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

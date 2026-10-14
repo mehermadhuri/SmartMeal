@@ -143,6 +143,57 @@ public class PaymentService {
         return payment;
     }
 
+    @Transactional
+    public Payment simulateCardPayment(Long paymentId, User user) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new IllegalArgumentException("Payment not found: " + paymentId));
+
+        Order order = payment.getOrder();
+        if (!order.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new IllegalStateException("Unauthorized access to payment");
+        }
+
+        String cardRef = "DEMO-CARD-AUTH-" + (100000L + (long)(Math.random() * 899999L));
+        payment.setProviderReference(cardRef);
+        payment.setPaymentMethod(PaymentMethod.CARD_DEMO);
+        payment.setStatus(PaymentStatus.PAID);
+        payment.setVerifiedBy("Demo Card Simulator");
+        payment.setVerifiedAt(LocalDateTime.now());
+        paymentRepository.save(payment);
+
+        order.setPaymentReference(cardRef);
+        order.setPaymentStatus(PaymentStatus.PAID);
+        order.setOrderStatus(OrderStatus.CONFIRMED);
+        orderRepository.save(order);
+
+        return payment;
+    }
+
+    @Transactional
+    public Payment recordPayAtCanteen(Long paymentId, User user) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new IllegalArgumentException("Payment not found: " + paymentId));
+
+        Order order = payment.getOrder();
+        if (!order.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new IllegalStateException("Unauthorized access to payment");
+        }
+
+        String counterRef = "PAY-AT-COUNTER-" + order.getOrderNumber();
+        payment.setProviderReference(counterRef);
+        payment.setPaymentMethod(PaymentMethod.PAY_AT_CANTEEN);
+        payment.setStatus(PaymentStatus.PENDING);
+        payment.setVerifiedBy(null);
+        paymentRepository.save(payment);
+
+        order.setPaymentReference(counterRef);
+        order.setPaymentStatus(PaymentStatus.PENDING);
+        order.setOrderStatus(OrderStatus.CONFIRMED);
+        orderRepository.save(order);
+
+        return payment;
+    }
+
     public Optional<Payment> getPaymentById(Long id) {
         return paymentRepository.findById(id);
     }

@@ -37,13 +37,18 @@ export function CartProvider({ children }) {
     setItems(prev => prev.filter(i => i.menuId !== menuId));
   }, []);
 
-  const clearCart = useCallback(() => setItems([]), []);
+  const [selectedSlot, setSelectedSlot] = useState('');
+
+  const clearCart = useCallback(() => {
+    setItems([]);
+    setSelectedSlot('');
+  }, []);
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
   const totalAmount = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ items, addItem, updateQuantity, removeItem, clearCart, totalItems, totalAmount }}>
+    <CartContext.Provider value={{ items, addItem, updateQuantity, removeItem, clearCart, totalItems, totalAmount, selectedSlot, setSelectedSlot }}>
       {children}
     </CartContext.Provider>
   );

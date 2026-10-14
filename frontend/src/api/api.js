@@ -56,6 +56,9 @@ export const orderAPI = {
 export const paymentAPI = {
   initiate: (body) => request('/payments/initiate', { method: 'POST', body: JSON.stringify(body) }),
   simulateSuccess: (id) => request(`/payments/${id}/simulate-success`, { method: 'POST' }),
+  simulateCard: (id) => request(`/payments/${id}/simulate-card`, { method: 'POST' }),
+  payAtCanteen: (id) => request(`/payments/${id}/pay-at-canteen`, { method: 'POST' }),
+  submitProof: (id, body) => request(`/payments/${id}/submit-proof`, { method: 'POST', body: JSON.stringify(body) }),
   getStatus: (id) => request(`/payments/${id}/status`),
   getByOrder: (orderId) => request(`/payments/order/${orderId}`),
 };

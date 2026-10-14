@@ -63,6 +63,30 @@ public class PaymentController {
         return ResponseEntity.ok(payment);
     }
 
+    @PostMapping("/{id}/simulate-card")
+    public ResponseEntity<?> simulateCardPayment(Principal principal, @PathVariable Long id) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(false, "Authentication required"));
+        }
+        User user = userService.findByEmail(principal.getName())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        Payment payment = paymentService.simulateCardPayment(id, user);
+        return ResponseEntity.ok(payment);
+    }
+
+    @PostMapping("/{id}/pay-at-canteen")
+    public ResponseEntity<?> payAtCanteen(Principal principal, @PathVariable Long id) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(false, "Authentication required"));
+        }
+        User user = userService.findByEmail(principal.getName())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        Payment payment = paymentService.recordPayAtCanteen(id, user);
+        return ResponseEntity.ok(payment);
+    }
+
     @GetMapping("/{id}/status")
     public ResponseEntity<?> getPaymentStatus(@PathVariable Long id) {
         return paymentService.getPaymentById(id)

@@ -100,4 +100,16 @@ public class OrderItem {
     public void setLineTotal(BigDecimal lineTotal) {
         this.lineTotal = lineTotal;
     }
+
+    public String getMenuName() {
+        return itemNameSnapshot;
+    }
+
+    public BigDecimal getUnitPrice() {
+        return unitPriceSnapshot;
+    }
+
+    public BigDecimal getTotalPrice() {
+        return lineTotal;
+    }
 }

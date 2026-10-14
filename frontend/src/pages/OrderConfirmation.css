@@ -1,41 +1,97 @@
 .receipt-header {
   text-align: center;
-  padding: 1.5rem 0;
-  margin-bottom: 1.5rem;
+  padding: 1.5rem 0 1rem;
+  margin-bottom: 1rem;
 }
-.receipt-check { color: var(--success); margin-bottom: 0.75rem; }
+.receipt-check { color: var(--success); margin-bottom: 0.5rem; }
 .receipt-header h1 { font-size: 1.5rem; font-weight: 800; color: var(--success); }
 .receipt-header p { color: var(--gray-600); margin-top: 0.3rem; }
 
-.receipt-card { margin-bottom: 1.5rem; }
+.receipt-card {
+  margin-bottom: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+}
 
 .receipt-brand { text-align: center; margin-bottom: 1rem; }
-.receipt-brand h2 { font-size: 1.3rem; font-weight: 800; color: var(--primary-dark); }
-.receipt-brand p { color: var(--gray-600); font-size: 0.85rem; }
-.receipt-tagline { font-style: italic; color: var(--gray-500); font-size: 0.8rem; }
+.receipt-brand h2 { font-size: 1.4rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 0.2rem; }
+.receipt-brand p { color: var(--gray-600); font-size: 0.88rem; margin: 0; }
+.receipt-tagline { font-style: italic; color: var(--gray-500); font-size: 0.8rem; margin-top: 0.2rem !important; }
 
-.receipt-divider { border: none; border-top: 1px dashed var(--gray-300); margin: 1rem 0; }
+.receipt-divider { border: none; border-top: 1px dashed var(--gray-300); margin: 0.85rem 0; }
 
-.receipt-meta { display: flex; flex-direction: column; gap: 0.5rem; }
-.receipt-row { display: flex; justify-content: space-between; font-size: 0.9rem; }
+.receipt-meta { display: flex; flex-direction: column; gap: 0.45rem; }
+.receipt-row { display: flex; justify-content: space-between; font-size: 0.88rem; }
 .receipt-row span:first-child { color: var(--gray-600); }
 
-.receipt-section-title { font-size: 0.9rem; font-weight: 700; text-transform: uppercase; color: var(--gray-600); letter-spacing: 0.04em; margin-bottom: 0.75rem; }
+.receipt-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.5rem 0;
+  font-size: 0.88rem;
+}
+.receipt-table th {
+  text-align: left;
+  padding: 0.45rem 0.25rem;
+  border-bottom: 1px solid var(--gray-300);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  color: var(--gray-600);
+  letter-spacing: 0.04em;
+}
+.receipt-table th.num-col, .receipt-table td.num-col {
+  text-align: right;
+}
+.receipt-table td {
+  padding: 0.5rem 0.25rem;
+  border-bottom: 1px solid var(--gray-100);
+}
 
-.receipt-item { display: flex; justify-content: space-between; padding: 0.35rem 0; font-size: 0.9rem; }
+.receipt-section-title { font-size: 0.88rem; font-weight: 700; text-transform: uppercase; color: var(--gray-700); letter-spacing: 0.04em; margin-bottom: 0.5rem; }
 
-.receipt-total { display: flex; justify-content: space-between; font-weight: 800; font-size: 1.1rem; }
+.receipt-total { display: flex; justify-content: space-between; font-weight: 800; font-size: 1.15rem; }
 .receipt-total-amount { color: var(--primary); }
 
-.text-success { color: var(--success); }
+.text-success { color: #16a34a; }
+.text-warning { color: #ca8a04; }
 
-.receipt-footer-note { font-size: 0.82rem; color: var(--gray-600); line-height: 1.6; }
+.receipt-footer-note {
+  font-size: 0.82rem;
+  color: var(--gray-600);
+  line-height: 1.6;
+  background: var(--gray-50);
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--gray-200);
+}
 .receipt-footer-note p { margin-bottom: 0.25rem; }
+.receipt-footer-note p:last-child { margin-bottom: 0; }
 
-.receipt-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-.receipt-actions .btn { flex: 1; justify-content: center; }
+.receipt-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.25rem; }
+.receipt-actions .btn { flex: 1; justify-content: center; min-width: 140px; }
 
 @media print {
-  .navbar, .receipt-actions, .page-header { display: none !important; }
-  .receipt-card { box-shadow: none; border: 1px solid #ccc; }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .navbar, .receipt-actions, .receipt-header, .page-header, .back-link {
+    display: none !important;
+  }
+  .page {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .receipt-card {
+    box-shadow: none !important;
+    border: 1px solid #999 !important;
+    padding: 1rem !important;
+    margin: 0 auto !important;
+  }
 }
