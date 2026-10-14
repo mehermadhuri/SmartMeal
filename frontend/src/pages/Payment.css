@@ -1,0 +1,30 @@
+.payment-card .payment-amount {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+  background: var(--accent);
+  border-radius: var(--radius-sm);
+  margin-bottom: 1.5rem;
+}
+.payment-amount span:first-child { font-weight: 600; color: var(--gray-700); }
+.amount-value { font-size: 1.75rem; font-weight: 800; color: var(--primary); }
+
+.payment-success {
+  text-align: center;
+  padding: 2rem 0;
+  color: var(--success);
+}
+.payment-success h3 { font-size: 1.3rem; margin-top: 0.75rem; }
+.payment-success p { color: var(--gray-600); margin-top: 0.3rem; }
+
+.payment-info {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--gray-50);
+  border-radius: var(--radius-sm);
+}
+.payment-info h3 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--gray-800); }
+.payment-info p { font-size: 0.9rem; color: var(--gray-600); }
+
+.spin { animation: spin 1s linear infinite; }
