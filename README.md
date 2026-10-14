@@ -13,6 +13,18 @@
 
 ---
 
+## 🌐 Live Deployment & Project Links
+
+| Service | Environment / Status | Link |
+|---|---|---|
+| **Backend API Service** | Render Web Service | `https://smartmeal-backend-l5xs.onrender.com` |
+| **Backend Health Probe** | Public JSON Endpoint | [`https://smartmeal-backend-l5xs.onrender.com/api/health`](https://smartmeal-backend-l5xs.onrender.com/api/health) |
+| **Frontend Web App** | Vercel SPA (Production) | Configured to connect to Render Backend |
+| **AI Microservice** | FastAPI / Docker | Built-in calibrated regression fallback active |
+| **GitHub Repository** | Official Source Code | [`https://github.com/mehermadhuri/SmartMeal`](https://github.com/mehermadhuri/SmartMeal) |
+
+---
+
 ## 📋 Table of Contents
 - [Project Overview](#-project-overview)
 - [Key Features](#-key-features)
