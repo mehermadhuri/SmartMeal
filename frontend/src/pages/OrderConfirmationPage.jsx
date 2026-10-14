@@ -46,9 +46,11 @@ export default function OrderConfirmationPage() {
             <div className="receipt-divider" />
 
             <div className="receipt-meta">
-              <div className="receipt-row"><span>Order ID</span><strong>#{order.id}</strong></div>
+              <div className="receipt-row"><span>Order Ref</span><strong>#{order.orderNumber || order.id}</strong></div>
               <div className="receipt-row"><span>Order Date</span><strong>{new Date(order.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</strong></div>
-              <div className="receipt-row"><span>Status</span><strong>{order.status}</strong></div>
+              <div className="receipt-row"><span>Meal Category</span><strong>{order.mealCategory || '—'}</strong></div>
+              <div className="receipt-row"><span>Pickup Slot</span><strong>🕐 {order.pickupSlot || '—'}</strong></div>
+              <div className="receipt-row"><span>Status</span><strong>{order.orderStatus}</strong></div>
               <div className="receipt-row"><span>Payment</span><strong className="text-success">{order.paymentStatus || payment?.status || 'COMPLETED'}</strong></div>
             </div>
 

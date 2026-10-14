@@ -18,7 +18,8 @@ export function CartProvider({ children }) {
         name: menuItem.name,
         price: menuItem.price,
         imageUrl: menuItem.imageUrl,
-        category: menuItem.mealType,   // backend returns mealType not category
+        mealType: menuItem.mealType,   // backend returns mealType
+        category: menuItem.mealType,   // alias kept for CartPage badge display
         quantity: qty,
       }];
     });

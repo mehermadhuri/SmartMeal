@@ -2,8 +2,16 @@ import { useEffect, useState } from 'react';
 import { adminAPI } from '../api/api';
 import { RefreshCw } from 'lucide-react';
 
-const STATUS_OPTIONS = ['PENDING', 'CONFIRMED', 'READY', 'COMPLETED', 'CANCELLED'];
-const STATUS_COLORS = { PENDING: 'badge-warning', CONFIRMED: 'badge-primary', READY: 'badge-success', COMPLETED: 'badge-success', CANCELLED: 'badge-danger' };
+const STATUS_OPTIONS = ['PENDING_PAYMENT', 'PAYMENT_VERIFICATION_PENDING', 'CONFIRMED', 'PREPARING', 'READY_FOR_PICKUP', 'COLLECTED', 'CANCELLED'];
+const STATUS_COLORS = {
+  PENDING_PAYMENT:              'badge-warning',
+  PAYMENT_VERIFICATION_PENDING: 'badge-warning',
+  CONFIRMED:                    'badge-primary',
+  PREPARING:                    'badge-primary',
+  READY_FOR_PICKUP:             'badge-success',
+  COLLECTED:                    'badge-success',
+  CANCELLED:                    'badge-danger',
+};
 
 export default function OrderManagementPage() {
   const [orders, setOrders] = useState([]);
@@ -63,23 +71,27 @@ export default function OrderManagementPage() {
           <div className="table-container">
             <table>
               <thead>
-                <tr><th>ID</th><th>Student</th><th>Items</th><th>Amount</th><th>Payment</th><th>Status</th><th>Date</th><th>Update Status</th></tr>
+                <tr><th>ID</th><th>Student</th><th>Items</th><th>Category/Slot</th><th>Amount</th><th>Payment</th><th>Status</th><th>Date</th><th>Update Status</th></tr>
               </thead>
               <tbody>
                 {orders.map(o => (
                   <tr key={o.id}>
-                    <td style={{ fontWeight: 700 }}>#{o.id}</td>
+                    <td style={{ fontWeight: 700 }}>#{o.orderNumber || o.id}</td>
                     <td style={{ fontSize: '0.88rem' }}>{o.user?.name}<br /><span style={{ color: 'var(--gray-500)', fontSize: '0.78rem' }}>{o.user?.rollNumber}</span></td>
                     <td style={{ fontSize: '0.85rem' }}>{o.items?.map(i => `${i.menuName}×${i.quantity}`).join(', ')}</td>
+                    <td style={{ fontSize: '0.82rem' }}>
+                      <div>{o.mealCategory || '—'}</div>
+                      <div style={{ color: 'var(--gray-500)' }}>{o.pickupSlot || '—'}</div>
+                    </td>
                     <td style={{ fontWeight: 700 }}>₹{o.totalAmount}</td>
                     <td><span className={`badge ${o.paymentStatus === 'COMPLETED' ? 'badge-success' : 'badge-warning'}`}>{o.paymentStatus || 'PENDING'}</span></td>
-                    <td><span className={`badge ${STATUS_COLORS[o.status] || 'badge-primary'}`}>{o.status}</span></td>
+                    <td><span className={`badge ${STATUS_COLORS[o.orderStatus] || 'badge-primary'}`}>{o.orderStatus}</span></td>
                     <td style={{ fontSize: '0.8rem', color: 'var(--gray-500)' }}>{new Date(o.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'short', timeStyle: 'short' })}</td>
                     <td>
                       <select
                         className="form-control"
                         style={{ padding: '0.3rem 0.5rem', fontSize: '0.82rem' }}
-                        value={o.status}
+                        value={o.orderStatus}
                         disabled={updating === o.id}
                         onChange={e => handleStatusChange(o.id, e.target.value)}
                       >
