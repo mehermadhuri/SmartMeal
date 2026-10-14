@@ -53,14 +53,6 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new ApiResponse(false, "Please provide a valid email address"));
         }
 
-        if (request.getPhoneNumber() == null || request.getPhoneNumber().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "Phone number is required"));
-        }
-
-        if (request.getRollNumber() == null || request.getRollNumber().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "University roll number is required"));
-        }
-
         if (request.getPassword() == null || request.getPassword().length() < 6) {
             return ResponseEntity.badRequest().body(new ApiResponse(false, "Password must contain at least 6 characters"));
         }
@@ -74,16 +66,26 @@ public class AuthController {
                     .body(new ApiResponse(false, "Email address is already registered"));
         }
 
-        if (userService.existsByRollNumber(request.getRollNumber().trim().toUpperCase())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ApiResponse(false, "Roll number is already registered"));
+        String phone = (request.getPhoneNumber() != null && !request.getPhoneNumber().trim().isEmpty())
+                ? request.getPhoneNumber().trim()
+                : "N/A";
+
+        String rollNumber;
+        if (request.getRollNumber() != null && !request.getRollNumber().trim().isEmpty()) {
+            rollNumber = request.getRollNumber().trim().toUpperCase();
+            if (userService.existsByRollNumber(rollNumber)) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(new ApiResponse(false, "Roll number is already registered"));
+            }
+        } else {
+            rollNumber = "SM-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         }
 
         User user = new User();
         user.setName(request.getName().trim());
         user.setEmail(request.getEmail().trim().toLowerCase());
-        user.setPhoneNumber(request.getPhoneNumber().trim());
-        user.setRollNumber(request.getRollNumber().trim().toUpperCase());
+        user.setPhoneNumber(phone);
+        user.setRollNumber(rollNumber);
         user.setDepartment(request.getDepartment() != null ? request.getDepartment().trim() : "CSE");
         user.setYear(request.getYear() != null ? request.getYear() : 1);
         user.setPassword(passwordEncoder.encode(request.getPassword()));

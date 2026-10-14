@@ -26,9 +26,9 @@ export default function SignUpPage() {
     if (!form.name.trim()) return 'Full name is required';
     if (!form.email.trim()) return 'Email address is required';
     if (!/^[A-Za-z0-9+_.-]+@(.+)$/.test(form.email)) return 'Enter a valid email address';
-    if (!form.phoneNumber.trim()) return 'Phone number is required';
-    if (!/^\d{10}$/.test(form.phoneNumber.trim())) return 'Enter a valid 10-digit phone number';
-    if (!form.rollNumber.trim()) return 'University roll number is required';
+    if (form.phoneNumber.trim() && !/^\d{10}$/.test(form.phoneNumber.trim())) {
+      return 'Enter a valid 10-digit phone number, or leave blank';
+    }
     if (form.password.length < 6) return 'Password must be at least 6 characters';
     if (form.password !== form.confirmPassword) return 'Passwords do not match';
     return null;
@@ -62,6 +62,9 @@ export default function SignUpPage() {
           <span className="auth-icon">🍽️</span>
           <h1>Create Account</h1>
           <p>Join SmartMeal — Anurag University Canteen</p>
+          <p style={{ fontSize: '0.85rem', color: '#16a34a', fontWeight: 600, marginTop: '0.35rem' }}>
+            ⚡ Direct Registration &bull; No OTP Required &bull; Sign In Immediately
+          </p>
         </div>
 
         {error && <div className="alert alert-error">{error}</div>}
@@ -70,22 +73,22 @@ export default function SignUpPage() {
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label>Full Name</label>
-            <input name="name" value={form.name} onChange={handleChange} className="form-control" placeholder="Enter your full name" />
+            <input name="name" value={form.name} onChange={handleChange} className="form-control" placeholder="Enter your full name" required />
           </div>
 
           <div className="form-group">
             <label>Email Address</label>
-            <input name="email" type="email" value={form.email} onChange={handleChange} className="form-control" placeholder="student@example.com" />
+            <input name="email" type="email" value={form.email} onChange={handleChange} className="form-control" placeholder="student@example.com" required />
           </div>
 
           <div className="form-group">
-            <label>Phone Number</label>
+            <label>Phone Number <span style={{ color: 'var(--gray-500)', fontWeight: 400 }}>(Optional)</span></label>
             <input name="phoneNumber" value={form.phoneNumber} onChange={handleChange} className="form-control" placeholder="10-digit mobile number" maxLength={10} />
           </div>
 
           <div className="form-group">
-            <label>University Roll Number</label>
-            <input name="rollNumber" value={form.rollNumber} onChange={handleChange} className="form-control" placeholder="e.g., 21EGECSE001" />
+            <label>University Roll Number <span style={{ color: 'var(--gray-500)', fontWeight: 400 }}>(Optional)</span></label>
+            <input name="rollNumber" value={form.rollNumber} onChange={handleChange} className="form-control" placeholder="e.g., 21EGECSE001 (auto-assigned if blank)" />
           </div>
 
           <div className="form-row">

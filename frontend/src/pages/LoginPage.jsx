@@ -42,6 +42,9 @@ export default function LoginPage() {
           <span className="auth-icon">🍽️</span>
           <h1>Welcome Back</h1>
           <p>Sign in to SmartMeal — Anurag University Canteen</p>
+          <p style={{ fontSize: '0.85rem', color: '#16a34a', fontWeight: 600, marginTop: '0.35rem' }}>
+            ⚡ Direct Sign In &bull; No OTP Required
+          </p>
         </div>
 
         {error && <div className="alert alert-error">{error}</div>}
