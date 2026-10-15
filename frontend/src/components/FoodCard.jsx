@@ -5,6 +5,25 @@ import './FoodCard.css';
 
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop';
 
+// Accurate food images for all Indian canteen dishes
+const FOOD_IMAGES = {
+  'Poori': '/images/food/poori.jpg',
+  'Masala Dosa': '/images/food/masala_dosa.jpg',
+  'Vada': '/images/food/vada.jpg',
+  'Upma': '/images/food/upma.jpg',
+  'Pongal': '/images/food/pongal.jpg',
+  'Pesarattu': '/images/food/pesarattu.jpg',
+  'Chicken Biryani': '/images/food/chicken_biryani.jpg',
+  'Veg Biryani': '/images/food/veg_biryani.jpg',
+  'Meals': '/images/food/meals.jpg',
+  'Curd Rice': '/images/food/curd_rice.jpg',
+  'Lemon Rice': '/images/food/lemon_rice.jpg',
+  'Sambar Rice': '/images/food/sambar_rice.jpg',
+  'Idly': '/images/food/idly.jpg',
+  'Plain Dosa': '/images/food/plain_dosa.jpg',
+  'Egg Fried Rice': '/images/food/egg_fried_rice.jpg',
+};
+
 export default function FoodCard({ item }) {
   const { addItem } = useCart();
   const [qty, setQty] = useState(1);
@@ -21,11 +40,15 @@ export default function FoodCard({ item }) {
     setQty(1);
   };
 
+  const resolvedImage = !imgError 
+    ? (FOOD_IMAGES[item.name] || item.imageUrl || FALLBACK_IMG) 
+    : (item.imageUrl && item.imageUrl !== FOOD_IMAGES[item.name] ? item.imageUrl : FALLBACK_IMG);
+
   return (
     <div className={`food-card card ${!available ? 'sold-out' : ''}`}>
       <div className="food-img-wrap">
         <img
-          src={imgError ? FALLBACK_IMG : (item.imageUrl || FALLBACK_IMG)}
+          src={resolvedImage}
           alt={item.name}
           className="food-img"
           onError={() => setImgError(true)}

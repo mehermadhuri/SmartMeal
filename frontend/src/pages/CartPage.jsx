@@ -146,7 +146,7 @@ export default function CartPage() {
                 Proceed to Checkout
               </button>
               <Link to="/menu" className="btn btn-outline btn-sm" style={{ width: '100%', marginTop: '0.5rem' }}>
-                <ArrowLeft size={16} /> Continue Shopping
+                <ArrowLeft size={16} /> Continue
               </Link>
             </div>
           </div>
