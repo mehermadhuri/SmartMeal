@@ -62,9 +62,6 @@ export default function SignUpPage() {
           <span className="auth-icon">🍽️</span>
           <h1>Create Account</h1>
           <p>Join SmartMeal — Anurag University Canteen</p>
-          <p style={{ fontSize: '0.85rem', color: '#16a34a', fontWeight: 600, marginTop: '0.35rem' }}>
-            ⚡ Direct Registration &bull; No OTP Required &bull; Sign In Immediately
-          </p>
         </div>
 
         {error && <div className="alert alert-error">{error}</div>}
