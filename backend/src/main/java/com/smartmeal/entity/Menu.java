@@ -17,7 +17,7 @@ public class Menu {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32, columnDefinition = "VARCHAR(32)")
     private MealType mealType;
 
     @Column

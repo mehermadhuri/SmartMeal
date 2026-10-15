@@ -12,11 +12,11 @@ public class MealSlot {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32, columnDefinition = "VARCHAR(32)")
     private MealType category = MealType.TIFFIN;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "menu_id", nullable = false)
+    @JoinColumn(name = "menu_id")
     private Menu menu;
 
     @Column(nullable = false)
@@ -35,6 +35,10 @@ public class MealSlot {
     private boolean available = true;
 
     public MealSlot() {
+    }
+
+    public MealSlot(MealType category, String slotName, LocalTime startTime, LocalTime endTime, Integer capacity) {
+        this(category, slotName, startTime, endTime, capacity, null);
     }
 
     public MealSlot(

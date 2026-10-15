@@ -15,16 +15,17 @@
 
 ## 🚀 Live Deployment
 
-The following are deployment candidates, not verified deployments of the code in this repository:
+### 🌐 Frontend Application
+- **Live URL**: Pending verification / deployment (Candidate: [https://smartmeal-frontend.vercel.app](https://smartmeal-frontend.vercel.app) — *Currently serving an unrelated application. Must be connected to this repository and deployed via Vercel with root directory set to `frontend`*).
 
-| Service | Link | Verification |
-|---|---|---|
-| Frontend deployment candidate | https://smartmeal-frontend.vercel.app | Not verified; it was observed serving a different meal-planning application, not this repository's React client. |
-| Backend deployment candidate | https://smartmeal-backend-l5xs.onrender.com | Not verified; the health check timed out during the latest audit. |
-| Backend health-check URL | https://smartmeal-backend-l5xs.onrender.com/api/health | Not verified. |
-| Full GitHub project URL | https://github.com/mehermadhuri/SmartMeal | GitHub source repository. |
+### ⚙️ Backend API
+- **API URL**: [https://smartmeal-backend-l5xs.onrender.com](https://smartmeal-backend-l5xs.onrender.com) (*Pending live verification; service is currently suspended or spinning up on Render*).
 
-The frontend and backend links above are candidates only; do not treat them as evidence that the current source has been deployed.
+### 🩺 Backend Health Check
+- **Health Check Endpoint**: [https://smartmeal-backend-l5xs.onrender.com/api/health](https://smartmeal-backend-l5xs.onrender.com/api/health) (*Pending live response; timed out during audit*).
+
+### 💻 Source Code
+- **GitHub Repository**: [https://github.com/mehermadhuri/SmartMeal](https://github.com/mehermadhuri/SmartMeal) (Branch: `master`)
 
 ---
 

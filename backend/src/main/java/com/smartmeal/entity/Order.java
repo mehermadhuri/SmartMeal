@@ -23,7 +23,7 @@ public class Order {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32, columnDefinition = "VARCHAR(32)")
     private MealType mealCategory = MealType.TIFFIN;
 
     @Column(nullable = false)

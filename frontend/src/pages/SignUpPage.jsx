@@ -6,7 +6,7 @@ import './Auth.css';
 
 export default function SignUpPage() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [showPwd, setShowPwd] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -18,6 +18,7 @@ export default function SignUpPage() {
   };
 
   const validate = () => {
+    if (!form.name.trim()) return 'Full name is required';
     if (!form.email.trim()) return 'Email address is required';
     if (!/^[A-Za-z0-9+_.-]+@(.+)$/.test(form.email)) return 'Enter a valid email address';
     if (form.password.length < 6) return 'Password must be at least 6 characters';
@@ -55,6 +56,11 @@ export default function SignUpPage() {
         {success && <div className="alert alert-success">{success}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">
+          <div className="form-group">
+            <label>Full Name</label>
+            <input name="name" type="text" value={form.name} onChange={handleChange} className="form-control" placeholder="John Doe" required />
+          </div>
+
           <div className="form-group">
             <label>Email Address</label>
             <input name="email" type="email" value={form.email} onChange={handleChange} className="form-control" placeholder="student@example.com" required />

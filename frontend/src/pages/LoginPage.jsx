@@ -42,7 +42,6 @@ export default function LoginPage() {
           <span className="auth-icon">🍽️</span>
           <h1>Welcome Back</h1>
           <p>Sign in to SmartMeal — Anurag University Canteen</p>
-          <p>Sign in with your registered email and password.</p>
         </div>
 
         {error && <div className="alert alert-error">{error}</div>}
