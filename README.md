@@ -93,7 +93,7 @@ College canteens face severe rush during lunch and tiffin hours, leading to long
 
 | Feature | Current status |
 |---|---|
-| Student registration and login | Implemented in source with BCrypt and JWT; registration does not require OTP. |
+| Student registration and login | Email/password-only registration and login are implemented with BCrypt and JWT; registration does not require OTP or profile fields. |
 | Daily menu | Partially implemented: the initializer seeds Tiffin and Lunch once when the menu table is empty; daily refresh and Breakfast/Snacks/Dinner menus are not implemented. |
 | Pickup slots | Implemented for seeded Tiffin and Lunch slots. |
 | Booking history | Implemented as the student's order history. |
@@ -223,8 +223,8 @@ Health endpoint: `http://localhost:8000/`
 cd backend
 .\mvnw.cmd test
 ```
-**Audit verification:** Backend tests passed (5/5) and the production JAR packaged successfully on Java 17.
-- `AuthIntegrationTests` (1/1): Validates student registration, duplicate prevention, BCrypt hashing, JWT generation, invalid credential rejection, unauthorized access barriers, and student role restrictions on admin APIs.
+**Audit verification:** Backend tests passed (6/6) and the production JAR packaged successfully on Java 17. The current auth integration tests also verify email/password-only registration followed by login.
+- `AuthIntegrationTests` (2/2): Validates student registration (including email/password-only registration), duplicate prevention, BCrypt hashing, JWT generation, invalid credential rejection, unauthorized access barriers, and student role restrictions on admin APIs.
 - `OrderAndPaymentIntegrationTests` (3/3):
   1. `testPublicHealthAndMenus`: Public `/api/health`, `/api/menus/available`, and `/api/slots`.
   2. `testOrderCreationAndPaymentFlows`: Order placement, server price calculation, duplicate order reuse, and card simulation.

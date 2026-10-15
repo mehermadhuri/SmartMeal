@@ -39,16 +39,12 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-
-        if (request.getName() == null || request.getName().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "Full name is required"));
-        }
-
         if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
             return ResponseEntity.badRequest().body(new ApiResponse(false, "Email address is required"));
         }
 
-        if (!request.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+        String email = request.getEmail().trim().toLowerCase();
+        if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
             return ResponseEntity.badRequest().body(new ApiResponse(false, "Please provide a valid email address"));
         }
 
@@ -56,11 +52,12 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new ApiResponse(false, "Password must contain at least 6 characters"));
         }
 
-        if (request.getConfirmPassword() != null && !request.getPassword().equals(request.getConfirmPassword())) {
+        if (request.getConfirmPassword() != null && !request.getConfirmPassword().isBlank()
+                && !request.getPassword().equals(request.getConfirmPassword())) {
             return ResponseEntity.badRequest().body(new ApiResponse(false, "Passwords do not match"));
         }
 
-        if (userService.existsByEmail(request.getEmail().trim().toLowerCase())) {
+        if (userService.existsByEmail(email)) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new ApiResponse(false, "Email address is already registered"));
         }
@@ -81,8 +78,9 @@ public class AuthController {
         }
 
         User user = new User();
-        user.setName(request.getName().trim());
-        user.setEmail(request.getEmail().trim().toLowerCase());
+        String name = request.getName() == null ? "" : request.getName().trim();
+        user.setName(name.isEmpty() ? email.substring(0, email.indexOf('@')) : name);
+        user.setEmail(email);
         user.setPhoneNumber(phone);
         user.setRollNumber(rollNumber);
         user.setDepartment(request.getDepartment() != null ? request.getDepartment().trim() : "CSE");

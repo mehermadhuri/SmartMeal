@@ -6,16 +6,11 @@ import './Auth.css';
 
 export default function SignUpPage() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({
-    name: '', email: '', phoneNumber: '', rollNumber: '',
-    department: 'CSE', year: 1, password: '', confirmPassword: '',
-  });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [showPwd, setShowPwd] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const departments = ['CSE', 'ECE', 'EEE', 'MECH', 'CIVIL', 'IT', 'AIDS', 'AIML', 'CSM'];
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -23,14 +18,9 @@ export default function SignUpPage() {
   };
 
   const validate = () => {
-    if (!form.name.trim()) return 'Full name is required';
     if (!form.email.trim()) return 'Email address is required';
     if (!/^[A-Za-z0-9+_.-]+@(.+)$/.test(form.email)) return 'Enter a valid email address';
-    if (form.phoneNumber.trim() && !/^\d{10}$/.test(form.phoneNumber.trim())) {
-      return 'Enter a valid 10-digit phone number, or leave blank';
-    }
     if (form.password.length < 6) return 'Password must be at least 6 characters';
-    if (form.password !== form.confirmPassword) return 'Passwords do not match';
     return null;
   };
 
@@ -42,10 +32,7 @@ export default function SignUpPage() {
     setLoading(true);
     setError('');
     try {
-      const res = await authAPI.register({
-        ...form,
-        year: parseInt(form.year),
-      });
+      const res = await authAPI.register(form);
       setSuccess(res.message || 'Registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
@@ -69,38 +56,8 @@ export default function SignUpPage() {
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label>Full Name</label>
-            <input name="name" value={form.name} onChange={handleChange} className="form-control" placeholder="Enter your full name" required />
-          </div>
-
-          <div className="form-group">
             <label>Email Address</label>
             <input name="email" type="email" value={form.email} onChange={handleChange} className="form-control" placeholder="student@example.com" required />
-          </div>
-
-          <div className="form-group">
-            <label>Phone Number <span style={{ color: 'var(--gray-500)', fontWeight: 400 }}>(Optional)</span></label>
-            <input name="phoneNumber" value={form.phoneNumber} onChange={handleChange} className="form-control" placeholder="10-digit mobile number" maxLength={10} />
-          </div>
-
-          <div className="form-group">
-            <label>University Roll Number <span style={{ color: 'var(--gray-500)', fontWeight: 400 }}>(Optional)</span></label>
-            <input name="rollNumber" value={form.rollNumber} onChange={handleChange} className="form-control" placeholder="e.g., 21EGECSE001 (auto-assigned if blank)" />
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label>Department</label>
-              <select name="department" value={form.department} onChange={handleChange} className="form-control">
-                {departments.map(d => <option key={d} value={d}>{d}</option>)}
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Year of Study</label>
-              <select name="year" value={form.year} onChange={handleChange} className="form-control">
-                {[1,2,3,4].map(y => <option key={y} value={y}>Year {y}</option>)}
-              </select>
-            </div>
           </div>
 
           <div className="form-group">
@@ -111,11 +68,6 @@ export default function SignUpPage() {
                 {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-          </div>
-
-          <div className="form-group">
-            <label>Confirm Password</label>
-            <input name="confirmPassword" type={showPwd ? 'text' : 'password'} value={form.confirmPassword} onChange={handleChange} className="form-control" placeholder="Re-enter your password" />
           </div>
 
           <button type="submit" className="btn btn-primary btn-lg auth-submit" disabled={loading}>

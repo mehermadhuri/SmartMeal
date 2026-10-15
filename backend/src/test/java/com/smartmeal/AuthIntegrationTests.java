@@ -165,4 +165,33 @@ public class AuthIntegrationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalOrdersToday").isNumber());
     }
+
+    @Test
+    void testRegistrationAndLoginWithEmailAndPasswordOnly() throws Exception {
+        String email = "simple-" + UUID.randomUUID() + "@example.test";
+        String password = "SimplePass123";
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                java.util.Map.of("email", email, "password", password))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.success").value(true));
+
+        User registeredUser = userRepository.findByEmail(email).orElseThrow();
+        assertEquals(email.substring(0, email.indexOf('@')), registeredUser.getName());
+        assertNotEquals(password, registeredUser.getPassword());
+        assertTrue(passwordEncoder.matches(password, registeredUser.getPassword()));
+
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail(email);
+        loginRequest.setPassword(password);
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").isString())
+                .andExpect(jsonPath("$.role").value("STUDENT"));
+    }
 }
