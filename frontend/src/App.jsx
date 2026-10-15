@@ -33,6 +33,7 @@ export default function App() {
           <Routes>
             {/* Public routes */}
             <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/register" element={<SignUpPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/" element={<Navigate to="/login" replace />} />
 
