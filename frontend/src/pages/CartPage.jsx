@@ -104,7 +104,7 @@ export default function CartPage() {
                 {slotsLoading ? (
                   <div style={{ fontSize: '0.85rem', color: 'var(--gray-500)' }}>Loading available slots...</div>
                 ) : slots.length === 0 ? (
-                  <div style={{ fontSize: '0.85rem', color: 'var(--danger, #d32f2f)' }}>No slots currently available. Ordering hours may be closed.</div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--gray-500)' }}>No pickup slots configured yet.</div>
                 ) : (
                   <select
                     className="form-control"

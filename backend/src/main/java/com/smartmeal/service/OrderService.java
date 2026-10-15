@@ -41,11 +41,6 @@ public class OrderService {
 
         MealType category = request.getMealCategory() != null ? request.getMealCategory() : MealType.TIFFIN;
 
-        // Enforce booking deadline rules on backend
-        if (!bookingWindowService.isCategoryOpen(category)) {
-            throw new IllegalStateException("Booking window for " + category + " is currently closed. Ordering hours: Tiffin 8:00 AM - 10:00 AM, Lunch 11:30 AM - 2:00 PM.");
-        }
-
         // Duplicate order protection: reuse existing pending order from the last 10 minutes if identical
         List<Order> recentOrders = orderRepository.findByUserOrderByCreatedAtDesc(user);
         for (Order recent : recentOrders) {

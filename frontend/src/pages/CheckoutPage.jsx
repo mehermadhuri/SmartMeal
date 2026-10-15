@@ -131,7 +131,7 @@ export default function CheckoutPage() {
               <div className="spinner" style={{ width: '24px', height: '24px' }} />
             ) : slots.length === 0 ? (
               <div className="alert alert-error" style={{ marginBottom: 0 }}>
-                <AlertCircle size={16} /> No pickup slots available for {cartCategory}. The booking window may be closed.
+                <AlertCircle size={16} /> No pickup slots currently configured for {cartCategory}.
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -191,6 +191,10 @@ export default function CheckoutPage() {
             <AlertCircle size={18} /> {error}
           </div>
         )}
+
+        <div style={{ marginTop: '1.25rem', padding: '0.75rem 1rem', background: 'var(--gray-50, #f9fafb)', border: '1px solid var(--gray-200, #e5e7eb)', borderRadius: '8px', fontSize: '0.82rem', color: 'var(--gray-600, #4b5563)', textAlign: 'center', lineHeight: '1.4' }}>
+          <strong>Ordering Hours (Informational):</strong> Tiffin: 8:00 AM – 10:00 AM | Lunch: 11:30 AM – 2:00 PM. You can place your meal bookings at any time.
+        </div>
       </div>
     </div>
   );
