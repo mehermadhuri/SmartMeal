@@ -16,13 +16,13 @@
 ## 🚀 Live Deployment
 
 ### 🌐 Frontend Application
-- **Live URL**: Pending verification / deployment (Candidate: [https://smartmeal-frontend.vercel.app](https://smartmeal-frontend.vercel.app) — *Currently serving an unrelated application. Must be connected to this repository and deployed via Vercel with root directory set to `frontend`*).
+- **Live URL**: [https://smart-meal-nu.vercel.app](https://smart-meal-nu.vercel.app) (**VERIFIED LIVE** — Connected to SmartMeal React client with clean registration, login, and full checkout flow).
 
 ### ⚙️ Backend API
-- **API URL**: [https://smartmeal-backend-l5xs.onrender.com](https://smartmeal-backend-l5xs.onrender.com) (*Pending live verification; service is currently suspended or spinning up on Render*).
+- **API URL**: [https://smartmeal-backend-l5xs.onrender.com](https://smartmeal-backend-l5xs.onrender.com) (**VERIFIED LIVE** — Connected to Aiven MySQL database with Java 17 / Spring Boot 4.1.1 runtime).
 
 ### 🩺 Backend Health Check
-- **Health Check Endpoint**: [https://smartmeal-backend-l5xs.onrender.com/api/health](https://smartmeal-backend-l5xs.onrender.com/api/health) (*Pending live response; timed out during audit*).
+- **Health Check Endpoint**: [https://smartmeal-backend-l5xs.onrender.com/api/health](https://smartmeal-backend-l5xs.onrender.com/api/health) (**VERIFIED HTTP 200** — Returns `status: "UP"`, `database: "UP"`).
 
 ### 💻 Source Code
 - **GitHub Repository**: [https://github.com/mehermadhuri/SmartMeal](https://github.com/mehermadhuri/SmartMeal) (Branch: `master`)
