@@ -17,17 +17,13 @@ public class JwtService {
     private final long expirationTime;
 
     public JwtService(
-            @Value("${jwt.secret:SmartMealSecretKeyForJwtAuthentication2026SecureCollegeCanteen}") String secret,
+            @Value("${jwt.secret}") String secret,
             @Value("${jwt.expiration:86400000}") long expirationTime) {
-        // Ensure secret key is at least 256 bits (32 bytes)
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         if (keyBytes.length < 32) {
-            byte[] padded = new byte[32];
-            System.arraycopy(keyBytes, 0, padded, 0, Math.min(keyBytes.length, 32));
-            this.secretKey = Keys.hmacShaKeyFor(padded);
-        } else {
-            this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+            throw new IllegalArgumentException("JWT_SECRET must contain at least 32 bytes");
         }
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
         this.expirationTime = expirationTime;
     }
 

@@ -5,7 +5,7 @@ import { Eye, EyeOff, LogIn } from 'lucide-react';
 import './Auth.css';
 
 export default function LoginPage() {
-  const { login, isAdmin } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

@@ -22,9 +22,15 @@ venv/
 
 # Environment variables & local configuration
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
 *.log
+
+# Private keys and certificates
+*.key
+*.pem
+*.p12
+*.jks
 
 # IDE & OS files
 .DS_Store

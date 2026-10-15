@@ -5,12 +5,12 @@ import com.smartmeal.repository.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -20,18 +20,24 @@ public class DataInitializer implements CommandLineRunner {
     private final MealSlotRepository mealSlotRepository;
     private final MealPredictionRepository mealPredictionRepository;
     private final PasswordEncoder passwordEncoder;
+    private final String adminEmail;
+    private final String adminPassword;
 
     public DataInitializer(
             UserRepository userRepository,
             MenuRepository menuRepository,
             MealSlotRepository mealSlotRepository,
             MealPredictionRepository mealPredictionRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            @Value("${smartmeal.admin.email:}") String adminEmail,
+            @Value("${smartmeal.admin.password:}") String adminPassword) {
         this.userRepository = userRepository;
         this.menuRepository = menuRepository;
         this.mealSlotRepository = mealSlotRepository;
         this.mealPredictionRepository = mealPredictionRepository;
         this.passwordEncoder = passwordEncoder;
+        this.adminEmail = adminEmail;
+        this.adminPassword = adminPassword;
     }
 
     @Override
@@ -43,33 +49,22 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seedUsers() {
-        if (!userRepository.existsByEmail("admin@anurag.edu.in")) {
-            User admin = new User();
-            admin.setName("Canteen Administrator");
-            admin.setEmail("admin@anurag.edu.in");
-            admin.setPassword(passwordEncoder.encode("Admin@123"));
-            admin.setRollNumber("ADMIN-001");
-            admin.setPhoneNumber("9876543210");
-            admin.setDepartment("Canteen Administration");
-            admin.setYear(4);
-            admin.setRole(Role.ADMIN);
-            admin.setCreatedAt(LocalDateTime.now());
-            userRepository.save(admin);
+        if (adminEmail.isBlank() && adminPassword.isBlank()) {
+            return;
         }
 
-        if (!userRepository.existsByEmail("mehermadhuri7@gmail.com")) {
-            User student = new User();
-            student.setName("KOTA MEHER MADHURI");
-            student.setEmail("mehermadhuri7@gmail.com");
-            student.setPassword(passwordEncoder.encode("Student@123"));
-            student.setRollNumber("21H61A0501");
-            student.setPhoneNumber("9876543210");
-            student.setDepartment("Computer Science & Engineering");
-            student.setYear(4);
-            student.setRole(Role.STUDENT);
-            student.setCreatedAt(LocalDateTime.now());
-            userRepository.save(student);
+        if (adminEmail.isBlank() || adminPassword.isBlank()) {
+            throw new IllegalStateException("ADMIN_EMAIL and ADMIN_PASSWORD must both be configured to bootstrap an administrator");
         }
+
+        User admin = userRepository.findByEmail(adminEmail.trim().toLowerCase())
+                .orElseGet(User::new);
+        admin.setName("Canteen Administrator");
+        admin.setEmail(adminEmail.trim().toLowerCase());
+        admin.setPassword(passwordEncoder.encode(adminPassword));
+        admin.setDepartment("Canteen Administration");
+        admin.setRole(Role.ADMIN);
+        userRepository.save(admin);
     }
 
     private void seedMenus() {
@@ -113,11 +108,19 @@ public class DataInitializer implements CommandLineRunner {
 
     private void seedSlots() {
         if (mealSlotRepository.count() == 0) {
-            mealSlotRepository.save(new MealSlot(MealType.TIFFIN, "08:00 AM - 09:00 AM", LocalTime.of(8, 0), LocalTime.of(9, 0), 100));
-            mealSlotRepository.save(new MealSlot(MealType.TIFFIN, "09:00 AM - 10:00 AM", LocalTime.of(9, 0), LocalTime.of(10, 0), 100));
-            mealSlotRepository.save(new MealSlot(MealType.LUNCH, "11:30 AM - 12:45 PM", LocalTime.of(11, 30), LocalTime.of(12, 45), 150));
-            mealSlotRepository.save(new MealSlot(MealType.LUNCH, "12:45 PM - 02:00 PM", LocalTime.of(12, 45), LocalTime.of(14, 0), 150));
+            Menu tiffinMenu = firstAvailableMenu(MealType.TIFFIN);
+            Menu lunchMenu = firstAvailableMenu(MealType.LUNCH);
+            mealSlotRepository.save(new MealSlot(MealType.TIFFIN, "08:00 AM - 09:00 AM", LocalTime.of(8, 0), LocalTime.of(9, 0), 100, tiffinMenu));
+            mealSlotRepository.save(new MealSlot(MealType.TIFFIN, "09:00 AM - 10:00 AM", LocalTime.of(9, 0), LocalTime.of(10, 0), 100, tiffinMenu));
+            mealSlotRepository.save(new MealSlot(MealType.LUNCH, "11:30 AM - 12:45 PM", LocalTime.of(11, 30), LocalTime.of(12, 45), 150, lunchMenu));
+            mealSlotRepository.save(new MealSlot(MealType.LUNCH, "12:45 PM - 02:00 PM", LocalTime.of(12, 45), LocalTime.of(14, 0), 150, lunchMenu));
         }
+    }
+
+    private Menu firstAvailableMenu(MealType mealType) {
+        return menuRepository.findByMealTypeAndAvailableTrue(mealType).stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Cannot seed pickup slots without an available " + mealType + " menu item"));
     }
 
     private void seedPredictions() {

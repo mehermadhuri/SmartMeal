@@ -4,6 +4,11 @@ import com.smartmeal.entity.MealPrediction;
 import com.smartmeal.entity.MealType;
 import com.smartmeal.repository.MealPredictionRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,6 +22,7 @@ import java.util.*;
 @Service
 public class MealPredictionService {
 
+    private static final Logger logger = LoggerFactory.getLogger(MealPredictionService.class);
     private final MealPredictionRepository mealPredictionRepository;
     private final RestTemplate restTemplate;
 
@@ -87,17 +93,22 @@ public class MealPredictionService {
             req.put("date", date.toString());
             req.put("day_of_week", date.getDayOfWeek().getValue());
             req.put("meal_type", type.name());
-            req.put("slot_id", Math.abs(slot.hashCode()) % 1000);
+            req.put("slot_name", slot);
 
-            ResponseEntity<Map> response = restTemplate.postForEntity(aiServiceUrl + "/predict", req, Map.class);
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                    aiServiceUrl + "/predict",
+                    HttpMethod.POST,
+                    new HttpEntity<>(req),
+                    new ParameterizedTypeReference<>() {
+                    });
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 Object p = response.getBody().get("predicted_demand");
                 if (p instanceof Number) {
                     predicted = ((Number) p).intValue();
                 }
             }
-        } catch (Exception ignored) {
-            // AI service offline, use calibrated local regression model
+        } catch (Exception ex) {
+            logger.warn("AI prediction service unavailable; using local fallback", ex);
         }
 
         MealPrediction p = new MealPrediction();

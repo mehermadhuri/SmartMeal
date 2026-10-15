@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/predictions")
-@CrossOrigin(origins = "*")
 public class MealPredictionController {
 
     private final MealPredictionService mealPredictionService;

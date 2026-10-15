@@ -18,6 +18,7 @@ class MealDemandPredictor:
             "notes": "Trained on historical Anurag University canteen synthetic booking & collection observations."
         }
         self.meal_type_map = {"TIFFIN": 0, "BREAKFAST": 0, "LUNCH": 1, "SNACKS": 2, "DINNER": 3}
+        self.slot_code_map = {}
         self.initialize_and_train()
 
     def generate_synthetic_historical_data(self, days=120):
@@ -73,7 +74,11 @@ class MealDemandPredictor:
             df = self.generate_synthetic_historical_data(180)
             X = df[["day_of_week", "is_weekend"]].copy()
             X["meal_type_code"] = df["meal_type"].map(self.meal_type_map)
-            X["slot_code"] = df["slot_name"].astype("category").cat.codes
+            self.slot_code_map = {
+                slot_name: code
+                for code, slot_name in enumerate(sorted(df["slot_name"].unique()))
+            }
+            X["slot_code"] = df["slot_name"].map(self.slot_code_map)
             y = df["actual_demand"]
 
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -99,6 +104,7 @@ class MealDemandPredictor:
             # Fallback if scikit-learn is not installed in the active environment
             self.metrics["notes"] = f"Using heuristic calibrated regression model: {str(e)}"
             self.model = None
+            self.slot_code_map = {}
 
     def predict(self, date_str: str, meal_type: str, slot_name: str = "Counter Slot", special_event: int = 0):
         try:
@@ -127,16 +133,19 @@ class MealDemandPredictor:
 
         if self.model is not None:
             try:
-                slot_code = abs(hash(slot_name)) % 4
-                features = pd.DataFrame([{
-                    "day_of_week": dow,
-                    "is_weekend": is_weekend,
-                    "meal_type_code": type_code,
-                    "slot_code": slot_code
-                }])
-                pred = int(self.model.predict(features)[0])
-                if special_event:
-                    pred = int(pred * 1.25)
+                slot_code = self.slot_code_map.get(slot_name)
+                if slot_code is None:
+                    pred = base
+                else:
+                    features = pd.DataFrame([{
+                        "day_of_week": dow,
+                        "is_weekend": is_weekend,
+                        "meal_type_code": type_code,
+                        "slot_code": slot_code
+                    }])
+                    pred = int(self.model.predict(features)[0])
+                    if special_event:
+                        pred = int(pred * 1.25)
             except Exception:
                 pred = base
         else:

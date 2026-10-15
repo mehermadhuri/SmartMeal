@@ -10,7 +10,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/menus")
-@CrossOrigin(origins = "*")
 public class MenuController {
 
     private final MenuService menuService;

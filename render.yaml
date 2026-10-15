@@ -3,8 +3,8 @@ services:
   - type: web
     name: smartmeal-backend
     env: docker
-    dockerfilePath: Dockerfile
-    dockerContext: .
+    dockerfilePath: backend/Dockerfile
+    dockerContext: backend
     plan: free
     healthCheckPath: /api/health
     envVars:
@@ -19,7 +19,13 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: AI_SERVICE_URL
-        value: http://localhost:8000
+        value: http://smartmeal-ai:8000
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
 
   # FastAPI Python AI Microservice (optional separate deploy)
   - type: web
@@ -32,3 +38,5 @@ services:
     envVars:
       - key: PYTHONUNBUFFERED
         value: "1"
+      - key: PORT
+        value: "8000"

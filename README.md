@@ -7,7 +7,7 @@
 [![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)
 [![React](https://img.shields.io/badge/React-19-blue.svg)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-8-purple.svg)](https://vitejs.dev/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-Python%203.14-teal.svg)](https://fastapi.tiangolo.com/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Python%203.10%2B-teal.svg)](https://fastapi.tiangolo.com/)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-blue.svg)](https://www.mysql.com/)
 [![Tests](https://img.shields.io/badge/Tests-5%2F5%20Passing-success.svg)]()
 
@@ -15,18 +15,13 @@
 
 ## 🚀 Live Deployment
 
-### 🌐 Frontend Application
-- **Live Website:** `https://smartmeal-frontend.vercel.app` *(Awaiting Vercel project import)*
+The following are deployment candidates, not verified deployments of the code in this repository:
 
-### ⚙️ Backend API
-- **Backend URL:** https://smartmeal-backend-l5xs.onrender.com
-- **Health Check:** https://smartmeal-backend-l5xs.onrender.com/api/health
+- **Vercel candidate:** https://smartmeal-frontend.vercel.app — it currently serves a different meal-planning application, not this repository's React client.
+- **Render candidate:** https://smartmeal-backend-l5xs.onrender.com — the health-check request timed out during the latest audit.
+- **Health-check URL:** https://smartmeal-backend-l5xs.onrender.com/api/health — not verified.
 
-### 🤖 AI Service
-- **AI Service URL:** Integrated FastAPI microservice (`ai-service/Dockerfile`); automated calibrated heuristic regression fallback active in `MealPredictionService.java` to guarantee zero disruptions to mess bookings.
-
-### 💻 Source Code
-- **GitHub Repository:** https://github.com/mehermadhuri/SmartMeal
+Do not use these URLs as evidence that the current source has been deployed. The GitHub repository is https://github.com/mehermadhuri/SmartMeal.
 
 ---
 
@@ -91,6 +86,20 @@ College canteens face severe rush during lunch and tiffin hours, leading to long
 - **Recommended Safety Buffer**: Computes an optimal +8% preparation buffer to prevent food shortages.
 - **Calibrated Heuristic Fallback**: Ensures uninterrupted predictions even if historical samples are limited.
 
+### Implementation Status
+
+| Feature | Current status |
+|---|---|
+| Student registration and login | Implemented in source with BCrypt and JWT; registration does not require OTP. |
+| Daily menu | Partially implemented: the initializer seeds Tiffin and Lunch once when the menu table is empty; daily refresh and Breakfast/Snacks/Dinner menus are not implemented. |
+| Pickup slots | Implemented for seeded Tiffin and Lunch slots. |
+| Booking history | Implemented as the student's order history. |
+| Booking modification | Not implemented. |
+| Cancellation cutoff | Cancellation exists, but no configured time cutoff is enforced. |
+| Admin order/menu operations | Implemented behind the admin role. |
+| Demand estimation | Implemented as a demo prediction flow using synthetic historical data and a heuristic fallback; it is not trained on production booking history. |
+| Live Vercel/Render integration | Not verified; the current public Vercel candidate serves a different app and the Render health check timed out. |
+
 ---
 
 ## 🏛️ System Architecture & Flow
@@ -143,20 +152,23 @@ cd SmartMeal
 ```
 
 ### 3. Database Configuration
-Ensure MySQL is running and set your local database credentials:
+Ensure MySQL is running and set local credentials and a private JWT secret in the current PowerShell session:
 ```powershell
-# Windows PowerShell:
+# Windows PowerShell (replace placeholders; do not commit these values):
 $env:DB_URL="jdbc:mysql://localhost:3306/smartmeal?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Kolkata"
-$env:DB_USERNAME="root"
-$env:DB_PASSWORD="your_mysql_password"
+$env:DB_USERNAME="<your_mysql_username>"
+$env:DB_PASSWORD="<your_mysql_password>"
+$env:JWT_SECRET="<at-least-32-random-bytes>"
 ```
+
+To bootstrap an administrator, also set `ADMIN_EMAIL` and `ADMIN_PASSWORD` as private environment variables before starting the backend. When configured, the initializer sets the selected account's role to admin and applies the configured password on startup. Without them, the application does not create a default administrator. Registration always creates student accounts.
 
 ### 4. Run the Backend (Spring Boot — Port 8081)
 ```powershell
 cd backend
 .\mvnw.cmd spring-boot:run
 ```
-*The database automatically creates tables and seeds default demo data upon startup.*
+*The database schema, sample menus, slots, and synthetic sample predictions are initialized on startup. Existing records are not deleted.*
 
 ### 5. Run the Frontend (React Vite — Port 5173)
 ```powershell
@@ -169,7 +181,9 @@ Open **`http://localhost:5173`** in your browser.
 ### 6. Run the AI Microservice (FastAPI — Port 8000)
 ```powershell
 cd ai-service
+py -m venv .venv
 .\.venv\Scripts\activate
+python -m pip install -r requirements.txt
 uvicorn app.main:app --port 8000 --reload
 ```
 Health endpoint: `http://localhost:8000/`
@@ -183,11 +197,14 @@ Health endpoint: `http://localhost:8000/`
 |---|---|---|
 | `PORT` | HTTP port assigned by cloud host | `8081` |
 | `DB_URL` | JDBC URL for MySQL | `jdbc:mysql://localhost:3306/smartmeal...` |
-| `DB_USERNAME` | Database username | `root` |
-| `DB_PASSWORD` | Database password | `12345` |
-| `JWT_SECRET` | Secret key for signing tokens (min 32 chars) | Built-in development key |
+| `DB_USERNAME` | Database username | Required |
+| `DB_PASSWORD` | Database password | Required |
+| `JWT_SECRET` | Secret key for signing tokens (at least 32 bytes) | Required; no built-in key |
 | `JWT_EXPIRATION` | Token expiry in milliseconds | `86400000` (24 hours) |
 | `AI_SERVICE_URL` | URL of the Python AI microservice | `http://localhost:8000` |
+| `ADMIN_EMAIL` | Optional administrator bootstrap email | Unset; no default admin |
+| `ADMIN_PASSWORD` | Optional administrator bootstrap password | Unset; no default password |
+| `ALLOWED_ORIGINS` | Comma-separated exact browser origins allowed by CORS | `http://localhost:5173,http://localhost:3000` |
 
 ### Frontend (`frontend/.env` / Cloud environment)
 | Variable | Description | Default |
@@ -203,27 +220,28 @@ Health endpoint: `http://localhost:8000/`
 cd backend
 .\mvnw.cmd test
 ```
-**Test Results (5/5 Passing):**
+**Audit verification:** Backend tests passed (5/5) and the production JAR packaged successfully on Java 17.
 - `AuthIntegrationTests` (1/1): Validates student registration, duplicate prevention, BCrypt hashing, JWT generation, invalid credential rejection, unauthorized access barriers, and student role restrictions on admin APIs.
 - `OrderAndPaymentIntegrationTests` (3/3):
   1. `testPublicHealthAndMenus`: Public `/api/health`, `/api/menus/available`, and `/api/slots`.
   2. `testOrderCreationAndPaymentFlows`: Order placement, server price calculation, duplicate order reuse, and card simulation.
   3. `testPayAtCanteenFlow`: Pay-at-canteen status transitions (`OrderStatus.CONFIRMED` with `PaymentStatus.PENDING`).
 - `SmartMealApplicationTests` (1/1): Context boot and bean dependency graph.
+- Backend tests use a disposable in-memory H2 database and do not connect to the configured MySQL database.
 
 ### 2. Frontend Production Build (React / Vite)
 ```powershell
 cd frontend
 npm run build
 ```
-**Result:** `✓ 1944 modules transformed. built in ~500ms. 0 errors.`
+**Audit result:** Production build passed (1,944 modules transformed, 0 errors). `npm run lint` also exited successfully; existing React hook and fast-refresh warnings remain.
 
 ### 3. AI Service Tests (Python)
 ```powershell
 cd ai-service
 .\.venv\Scripts\python.exe test_ai_service.py
 ```
-**Result:** `All AI service tests passed successfully (3/3)!`
+**Audit result:** All AI service tests passed (3/3).
 
 ---
 
@@ -244,14 +262,18 @@ Deploy to a persistent cloud MySQL provider:
 Deploy the Spring Boot service to **Render** or **Railway**:
 - **Option A — Render Web Service**:
   1. Connect your GitHub repository at [dashboard.render.com](https://dashboard.render.com).
-  2. Choose **Docker** environment pointing to `backend/Dockerfile`.
+  2. Apply `render.yaml` from the repository root. The backend Docker service uses `backend/Dockerfile` with `backend` as its build context.
   3. Set environment variables:
      - `PORT`: `8080`
      - `DB_URL`: `<your-cloud-mysql-jdbc-url>`
      - `DB_USERNAME`: `<your-db-username>`
      - `DB_PASSWORD`: `<your-db-password>`
-     - `JWT_SECRET`: `<generated-32-char-random-secret>`
+     - `JWT_SECRET`: `<generated-random-secret-of-at-least-32-bytes>`
+     - `ADMIN_EMAIL` and `ADMIN_PASSWORD`: private administrator bootstrap values, if needed.
+     - `AI_SERVICE_URL`: private URL of the `smartmeal-ai` Render service.
+     - `ALLOWED_ORIGINS`: exact verified Vercel origin (for example, `https://<your-project>.vercel.app`).
   4. Health check path: `/api/health`.
+  5. Before deploying over an existing database, verify and safely backfill `meal_slots.menu_id` for existing rows. The production schema and data were not accessible during this audit, so this required-column migration has not been verified.
 
 ### 3. Frontend Deployment
 Deploy the React single page application to **Vercel** or **Netlify**:
@@ -260,16 +282,16 @@ Deploy the React single page application to **Vercel** or **Netlify**:
   2. Root directory: `frontend`.
   3. Framework Preset: `Vite`.
   4. Environment variable:
-     - `VITE_API_BASE_URL`: `https://your-deployed-backend-url.onrender.com`
-  5. Deploy. `vercel.json` automatically handles client-side routing.
+     - `VITE_API_BASE_URL`: `https://your-verified-backend-url.onrender.com`
+  5. Deploy. `vercel.json` automatically handles client-side routing. The client adds `/api`; do not include it in this value.
 - **Option B — Netlify**:
   1. Connect GitHub repo on [netlify.com](https://netlify.com).
   2. Build command: `npm run build`, Publish directory: `frontend/dist`.
   3. Netlify automatically reads `netlify.toml` for single-page routing rewrites.
 
-### 4. AI Service Deployment (Optional)
-- Deploy `ai-service/Dockerfile` as a free web service on Render or Railway, or as a Docker Space on Hugging Face.
-- Point the backend's `AI_SERVICE_URL` environment variable to the deployed microservice URL.
+### 4. AI Service Deployment
+- The Render blueprint in `render.yaml` defines the `smartmeal-ai` service and sets the backend's `AI_SERVICE_URL` to its private service URL.
+- If deployed separately, set `AI_SERVICE_URL` to the reachable base URL of the FastAPI service.
 
 ---
 
@@ -278,7 +300,7 @@ Deploy the React single page application to **Vercel** or **Netlify**:
 ### Public Endpoints
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/health` | Public service uptime & status probe |
+| `GET` | `/api/health` | Public application and database readiness probe (503 when the database is unavailable) |
 | `POST` | `/api/auth/register` | Register new student account |
 | `POST` | `/api/auth/login` | Login and obtain JWT token |
 | `GET` | `/api/menus/available` | Browse available menu items |
@@ -328,4 +350,4 @@ Department of Computer Science & Engineering
 **Anurag University**, Hyderabad, Telangana, India  
 GitHub: [https://github.com/mehermadhuri](https://github.com/mehermadhuri)
 
-> *SmartMeal is developed .*
+> *SmartMeal is an academic demonstration project for meal pre-booking and canteen management.*

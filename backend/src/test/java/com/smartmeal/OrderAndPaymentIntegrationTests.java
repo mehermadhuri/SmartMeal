@@ -5,21 +5,28 @@ import com.smartmeal.dto.LoginRequest;
 import com.smartmeal.dto.OrderItemRequest;
 import com.smartmeal.dto.OrderRequest;
 import com.smartmeal.dto.PaymentInitiateRequest;
+import com.smartmeal.dto.RegisterRequest;
 import com.smartmeal.entity.MealType;
 import com.smartmeal.entity.Menu;
+import com.smartmeal.entity.Role;
+import com.smartmeal.entity.User;
 import com.smartmeal.repository.MenuRepository;
+import com.smartmeal.repository.UserRepository;
+import com.smartmeal.security.JwtService;
 import com.smartmeal.service.BookingWindowService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -40,6 +47,15 @@ public class OrderAndPaymentIntegrationTests {
     private MenuRepository menuRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
     private BookingWindowService bookingWindowService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -57,10 +73,22 @@ public class OrderAndPaymentIntegrationTests {
         // Enable test override on booking hours so tests pass regardless of execution time
         bookingWindowService.setTestOverrideAllowed(true);
 
-        // Authenticate demo student
+        String testEmail = "orders-" + UUID.randomUUID() + "@example.test";
+        String testPassword = UUID.randomUUID().toString();
+        RegisterRequest registration = new RegisterRequest();
+        registration.setName("Order Integration Test");
+        registration.setEmail(testEmail);
+        registration.setPassword(testPassword);
+        registration.setConfirmPassword(testPassword);
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registration)))
+                .andExpect(status().isCreated());
+
         LoginRequest login = new LoginRequest();
-        login.setEmail("mehermadhuri7@gmail.com");
-        login.setPassword("Student@123");
+        login.setEmail(testEmail);
+        login.setPassword(testPassword);
 
         MvcResult res = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -82,6 +110,7 @@ public class OrderAndPaymentIntegrationTests {
         mockMvc.perform(get("/api/health"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("UP"))
+                .andExpect(jsonPath("$.database").value("UP"))
                 .andExpect(jsonPath("$.service").isString());
 
         // 2. Public available menus
@@ -144,6 +173,26 @@ public class OrderAndPaymentIntegrationTests {
                 .andReturn();
 
         long paymentId = objectMapper.readTree(initRes.getResponse().getContentAsString()).get("paymentId").asLong();
+
+        User otherUser = new User();
+        otherUser.setName("Other Integration User");
+        otherUser.setEmail("other-" + UUID.randomUUID() + "@example.test");
+        otherUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+        otherUser.setRole(Role.STUDENT);
+        otherUser = userRepository.save(otherUser);
+        String otherToken = jwtService.generateToken(otherUser.getEmail(), otherUser.getRole().name());
+
+        mockMvc.perform(get("/api/payments/" + paymentId + "/status")
+                        .header("Authorization", "Bearer " + otherToken))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(get("/api/payments/order/" + orderId)
+                        .header("Authorization", "Bearer " + otherToken))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(get("/api/payments/" + paymentId + "/status")
+                        .header("Authorization", "Bearer " + studentToken))
+                .andExpect(status().isOk());
 
         // 4. Test Card Demo Simulation
         mockMvc.perform(post("/api/payments/" + paymentId + "/simulate-card")

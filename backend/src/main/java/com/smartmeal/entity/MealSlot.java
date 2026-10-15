@@ -16,11 +16,11 @@ public class MealSlot {
     private MealType category = MealType.TIFFIN;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "menu_id")
+    @JoinColumn(name = "menu_id", nullable = false)
     private Menu menu;
 
     @Column(nullable = false)
-    private String slotName; // e.g. "08:00 AM - 09:00 AM"
+    private String slotName;
 
     @Column(nullable = false)
     private LocalTime startTime;
@@ -37,13 +37,21 @@ public class MealSlot {
     public MealSlot() {
     }
 
-    public MealSlot(MealType category, String slotName, LocalTime startTime, LocalTime endTime, Integer capacity) {
+    public MealSlot(
+            MealType category,
+            String slotName,
+            LocalTime startTime,
+            LocalTime endTime,
+            Integer capacity,
+            Menu menu) {
+
         this.category = category;
         this.slotName = slotName;
         this.startTime = startTime;
         this.endTime = endTime;
         this.capacity = capacity;
         this.available = true;
+        this.menu = menu;
     }
 
     public Long getId() {

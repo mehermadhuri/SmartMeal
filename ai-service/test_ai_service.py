@@ -11,6 +11,9 @@ def test_model_prediction():
     assert "recommended_buffer" in res, "Missing recommended_buffer"
     assert "recommended_total" in res, "Missing recommended_total"
     assert res["recommended_total"] >= res["predicted_demand"], "Buffer must increase or match demand"
+    assert "12:45 PM - 02:00 PM" in predictor.slot_code_map
+    if predictor.model is not None:
+        assert res["model_used"] == "RandomForestRegressor"
     print("test_model_prediction: PASSED")
 
 def test_health_check_function():

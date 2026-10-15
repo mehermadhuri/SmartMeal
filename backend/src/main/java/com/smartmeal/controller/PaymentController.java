@@ -4,6 +4,7 @@ import com.smartmeal.dto.ApiResponse;
 import com.smartmeal.dto.PaymentInitiateRequest;
 import com.smartmeal.dto.PaymentProofRequest;
 import com.smartmeal.entity.Payment;
+import com.smartmeal.entity.Role;
 import com.smartmeal.entity.User;
 import com.smartmeal.service.PaymentService;
 import com.smartmeal.service.UserService;
@@ -13,10 +14,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/payments")
-@CrossOrigin(origins = "*")
 public class PaymentController {
 
     private final PaymentService paymentService;
@@ -88,16 +89,45 @@ public class PaymentController {
     }
 
     @GetMapping("/{id}/status")
-    public ResponseEntity<?> getPaymentStatus(@PathVariable Long id) {
-        return paymentService.getPaymentById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> getPaymentStatus(Principal principal, @PathVariable Long id) {
+        User user = authenticatedUser(principal);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(false, "Authentication required"));
+        }
+        Optional<Payment> payment = paymentService.getPaymentById(id);
+        if (payment.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!canAccessPayment(user, payment.get())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse(false, "You do not have permission to view this payment"));
+        }
+        return ResponseEntity.ok(payment.get());
     }
 
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<?> getPaymentByOrderId(@PathVariable Long orderId) {
-        return paymentService.getPaymentByOrderId(orderId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> getPaymentByOrderId(Principal principal, @PathVariable Long orderId) {
+        User user = authenticatedUser(principal);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(false, "Authentication required"));
+        }
+        Optional<Payment> payment = paymentService.getPaymentByOrderId(orderId);
+        if (payment.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!canAccessPayment(user, payment.get())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse(false, "You do not have permission to view this payment"));
+        }
+        return ResponseEntity.ok(payment.get());
+    }
+
+    private User authenticatedUser(Principal principal) {
+        if (principal == null) {
+            return null;
+        }
+        return userService.findByEmail(principal.getName()).orElse(null);
+    }
+
+    private boolean canAccessPayment(User user, Payment payment) {
+        return user.getRole() == Role.ADMIN || payment.getOrder().getUser().getId().equals(user.getId());
     }
 }

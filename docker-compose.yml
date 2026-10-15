@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build:
@@ -10,11 +8,13 @@ services:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - PORT=8080
       - DB_URL=${DB_URL}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
       - AI_SERVICE_URL=http://ai-service:8000
+      - ALLOWED_ORIGINS=http://localhost:3000
     depends_on:
       - ai-service
 
