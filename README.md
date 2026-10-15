@@ -17,11 +17,14 @@
 
 The following are deployment candidates, not verified deployments of the code in this repository:
 
-- **Vercel candidate:** https://smartmeal-frontend.vercel.app — it currently serves a different meal-planning application, not this repository's React client.
-- **Render candidate:** https://smartmeal-backend-l5xs.onrender.com — the health-check request timed out during the latest audit.
-- **Health-check URL:** https://smartmeal-backend-l5xs.onrender.com/api/health — not verified.
+| Service | Link | Verification |
+|---|---|---|
+| Frontend (Vercel candidate) | [smartmeal-frontend.vercel.app](https://smartmeal-frontend.vercel.app) | Not verified; it was observed serving a different meal-planning application, not this repository's React client. |
+| Backend (Render candidate) | [smartmeal-backend-l5xs.onrender.com](https://smartmeal-backend-l5xs.onrender.com) | Not verified; the health check timed out during the latest audit. |
+| Backend health check | [https://smartmeal-backend-l5xs.onrender.com/api/health](https://smartmeal-backend-l5xs.onrender.com/api/health) | Not verified. |
+| Source repository | [mehermadhuri/SmartMeal](https://github.com/mehermadhuri/SmartMeal) | GitHub source repository. |
 
-Do not use these URLs as evidence that the current source has been deployed. The GitHub repository is https://github.com/mehermadhuri/SmartMeal.
+The frontend and backend links above are candidates only; do not treat them as evidence that the current source has been deployed.
 
 ---
 
