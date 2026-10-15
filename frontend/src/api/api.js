@@ -1,5 +1,7 @@
-const RAW_BASE = import.meta.env.VITE_API_BASE_URL || '';
-const API_BASE = RAW_BASE ? (RAW_BASE.endsWith('/api') ? RAW_BASE : `${RAW_BASE.replace(/\/$/, '')}/api`) : '/api';
+const RAW_BASE = import.meta.env.VITE_API_BASE_URL?.trim().replace(/\/+$/, '') || '';
+const API_BASE = RAW_BASE
+  ? (RAW_BASE.endsWith('/api') ? RAW_BASE : `${RAW_BASE}/api`)
+  : '/api';
 
 async function request(endpoint, options = {}) {
   const token = localStorage.getItem('smartmeal_token');
@@ -8,13 +10,24 @@ async function request(endpoint, options = {}) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error('Cannot connect to the SmartMeal server. Please try again later.');
+    }
+    throw error;
+  }
 
   if (res.status === 204) return null;
 
   const data = await res.json().catch(() => null);
 
   if (!res.ok) {
+    if (res.status >= 500) {
+      throw new Error('Cannot connect to the SmartMeal server. Please try again later.');
+    }
     const msg = data?.message || data?.error || `Request failed (${res.status})`;
     const err = new Error(msg);
     err.status = res.status;

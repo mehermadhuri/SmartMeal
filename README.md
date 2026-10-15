@@ -209,7 +209,7 @@ Health endpoint: `http://localhost:8000/`
 ### Frontend (`frontend/.env` / Cloud environment)
 | Variable | Description | Default |
 |---|---|---|
-| `VITE_API_BASE_URL` | Base URL of the deployed Spring Boot backend | Empty (`/api` proxy in dev) |
+| `VITE_API_BASE_URL` | Optional direct base URL override for the deployed Spring Boot backend | Empty (`/api`; Vercel proxies API requests to the Render backend) |
 
 ---
 
@@ -281,13 +281,13 @@ Deploy the React single page application to **Vercel** or **Netlify**:
   1. Import GitHub repository `mehermadhuri/SmartMeal` on [vercel.com](https://vercel.com).
   2. Root directory: `frontend`.
   3. Framework Preset: `Vite`.
-  4. Environment variable:
-     - `VITE_API_BASE_URL`: `https://your-verified-backend-url.onrender.com`
-  5. Deploy. `vercel.json` automatically handles client-side routing. The client adds `/api`; do not include it in this value.
+  4. `frontend/vercel.json` sends `/api/*` requests to the configured Render backend and handles client-side routing. Set `VITE_API_BASE_URL` only if using a different backend; the client adds `/api` unless it is already present.
+  5. Ensure Render's `ALLOWED_ORIGINS` includes the deployed Vercel site's exact origin, and verify the Render health endpoint before testing login.
 - **Option B — Netlify**:
   1. Connect GitHub repo on [netlify.com](https://netlify.com).
   2. Build command: `npm run build`, Publish directory: `frontend/dist`.
   3. Netlify automatically reads `netlify.toml` for single-page routing rewrites.
+  4. Set `VITE_API_BASE_URL` to the verified backend base URL (without `/api`, or with `/api`); Netlify does not use Vercel's API rewrite.
 
 ### 4. AI Service Deployment
 - The Render blueprint in `render.yaml` defines the `smartmeal-ai` service and sets the backend's `AI_SERVICE_URL` to its private service URL.
