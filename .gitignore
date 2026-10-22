@@ -38,3 +38,6 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+smartmeal_data/
+*.mv.db
+*.trace.db

@@ -11,6 +11,7 @@ export default function SignUpPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [slowNotice, setSlowNotice] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -32,6 +33,9 @@ export default function SignUpPage() {
 
     setLoading(true);
     setError('');
+    setSlowNotice(false);
+    const slowTimer = setTimeout(() => setSlowNotice(true), 4000);
+
     try {
       const res = await authAPI.register(form);
       setSuccess(res.message || 'Registration successful! Redirecting to login...');
@@ -39,7 +43,9 @@ export default function SignUpPage() {
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');
     } finally {
+      clearTimeout(slowTimer);
       setLoading(false);
+      setSlowNotice(false);
     }
   };
 
@@ -79,6 +85,12 @@ export default function SignUpPage() {
           <button type="submit" className="btn btn-primary btn-lg auth-submit" disabled={loading}>
             <UserPlus size={18} /> {loading ? 'Creating Account...' : 'Create Account'}
           </button>
+
+          {slowNotice && (
+            <p style={{ fontSize: '0.82rem', color: '#64748b', textAlign: 'center', marginTop: '0.75rem', lineHeight: '1.4' }}>
+              ⏳ Connecting to backend... If the free cloud server was idle, it may take 30–50 seconds to wake up.
+            </p>
+          )}
         </form>
 
         <p className="auth-footer">

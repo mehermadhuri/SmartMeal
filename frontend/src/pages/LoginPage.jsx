@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [showPwd, setShowPwd] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [slowNotice, setSlowNotice] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,6 +22,9 @@ export default function LoginPage() {
     }
     setLoading(true);
     setError('');
+    setSlowNotice(false);
+    const slowTimer = setTimeout(() => setSlowNotice(true), 4000);
+
     try {
       const res = await login(email.trim(), password);
       if (res.role === 'ADMIN') {
@@ -31,7 +35,9 @@ export default function LoginPage() {
     } catch (err) {
       setError(err.message || 'Login failed. Please check your credentials.');
     } finally {
+      clearTimeout(slowTimer);
       setLoading(false);
+      setSlowNotice(false);
     }
   };
 
@@ -65,6 +71,12 @@ export default function LoginPage() {
           <button type="submit" className="btn btn-primary btn-lg auth-submit" disabled={loading}>
             <LogIn size={18} /> {loading ? 'Signing in...' : 'Sign In'}
           </button>
+
+          {slowNotice && (
+            <p style={{ fontSize: '0.82rem', color: '#64748b', textAlign: 'center', marginTop: '0.75rem', lineHeight: '1.4' }}>
+              ⏳ Connecting to backend... If the free cloud server was idle, it may take 30–50 seconds to wake up.
+            </p>
+          )}
         </form>
 
         <p className="auth-footer">

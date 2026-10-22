@@ -10,14 +10,27 @@ async function request(endpoint, options = {}) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
+  const controller = new AbortController();
+  const timeoutMs = options.timeout || 35000;
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
   let res;
   try {
-    res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+    res = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers,
+      signal: controller.signal
+    });
   } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('Connection timed out. The server is either waking up from sleep or temporarily unavailable. Please try again in a few moments.');
+    }
     if (error instanceof TypeError) {
-      throw new Error('Cannot connect to the SmartMeal server. Please try again later.');
+      throw new Error('Cannot connect to the SmartMeal server. Please wait a moment and try again.');
     }
     throw error;
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   if (res.status === 204) return null;
